@@ -31,7 +31,12 @@ module.exports = (sequelize) => {
             deleted_at: {
                 type: DataTypes.DATE,
                 allowNull: true
-            }
+            },
+			role:{
+				type: DataTypes.STRING(30),
+				allowNull:false,
+				defaultValue:'user' //admin, user
+			}
 		},
 		{
 			tableName: "users",

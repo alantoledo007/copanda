@@ -56,7 +56,7 @@ Product.belongsTo(ProductCategory, {foreignKey: 'category_id', as: 'category'});
 Product.belongsTo(Company, {foreignKey: 'company_id', as: 'company'});
 Product.hasMany(Orderline, {foreignKey: 'product_id', as:'orderlines'});
 
-Order.balongsTo(Company, {foreignKey: 'company_id', as: 'company'});
+Order.belongsTo(Company, {foreignKey: 'company_id', as: 'company'});
 Order.hasMany(Orderline, {foreignKey:'order_id',as:'orderlines'});
 Order.belongsTo(User, {foreignKey:'buyer_id',as:'buyer'});
 
@@ -70,6 +70,10 @@ Company.hasMany(Order,{foreignKey:'company_id',as:'orders'});
 Company.hasMany(CompanySettings,{foreignKey:'company_id',as:'settings'});
 Company.belongsTo(User,{foreignKey:'user_id',as:'user'});
 Company.belongsTo(DocType,{foreignKey:'doc_type_id', as:'doctype'});
+
+AvailableCompanySettings.hasMany(CompanySettings,{foreignKey:'setting_id',as:'companies_settings'})
+
+CompanySettings.belongsTo(AvailableCompanySettings,{foreignKey:'setting_id',as:'setting'});
 
 module.exports = {
 	...sequelize.models, // para poder importar los modelos así: const { Product, User } = require('./db.js');

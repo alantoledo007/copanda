@@ -11,7 +11,7 @@ module.exports = (sequelize) => {
 				autoIncrement: true
 			},
             fantasy_name: {
-                type: DataTypes.BIGINT,
+                type: DataTypes.STRING(255),
                 allowNull:false
             },
             legal_name: {
@@ -34,10 +34,6 @@ module.exports = (sequelize) => {
             verified_at: {
               type: DataTypes.DATE,
               allowNull:true
-            },
-			value: {
-                type: DataTypes.TEXT,
-                allowNull: true
             },
             user_id: {
                 type: DataTypes.BIGINT,
