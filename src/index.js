@@ -3,7 +3,7 @@ const express = require('express');
 const server = express();
 const port = 3000;
 const routes = require('./routes');
-const { conn, User } = require('./db');
+const { conn, User, Company } = require('./db');
 const bcrypt = require("bcrypt");
 
 //adminBro
@@ -12,8 +12,12 @@ const AdminBroExpress = require('@admin-bro/express');
 const AdminBroSequelize = require('@admin-bro/sequelize');
 const passwordFeature = require('@admin-bro/passwords')
 
+const seeders = require('./seeders');
+
 
 //adminBro
+
+const canModifyUsers = ({ currentAdmin }) => currentAdmin && currentAdmin.role === 'admin';
 
 const managerParent = {
     name:'Manage',
@@ -29,11 +33,19 @@ const adminBro = new AdminBro({
     },
     resources: [
         {
+            resource: Company,
+            options: {
+                properties: {
+                    id: {isId:true}
+                }
+            }
+        },
+        {
             resource: User,
             options: {
                 properties: {
                     id:{
-                        idId:true,
+                        isId:true,
                     },
                     password: {
                         type:'password'
@@ -58,7 +70,18 @@ const adminBro = new AdminBro({
         }
     ],
 });
-const adminBroRouter = AdminBroExpress.buildRouter(adminBro);
+const adminBroRouter = AdminBroExpress.buildAuthenticatedRouter(adminBro, {
+    authenticate: async (email, password) => {
+      const user = await User.findOne({ email })
+        if (user) {
+          if (await user.matchPassword(password)) {
+            return user
+          }
+        }
+      return false
+    },
+    cookiePassword: 'session Key',
+  })
 
 const startServer = () => {
     server.listen(port, () => {
@@ -73,7 +96,8 @@ if(DB_FORCE !== 'true' && DB_FORCE !== 'false') throw TypeError('The env variabl
 
 const force = DB_FORCE === 'true' ? true : false;
 conn.sync({force})
-    .then(() => {
+    .then(async () => {
+        if(force) await seeders();
         startServer();
     })
     .catch((err) => {
