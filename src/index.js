@@ -3,7 +3,7 @@ const express = require('express');
 const server = express();
 const port = 3000;
 const routes = require('./routes');
-const { conn, User, Company } = require('./db');
+const { conn, User, Company, DocType, ProductCategory } = require('./db');
 const bcrypt = require("bcrypt");
 
 //adminBro
@@ -13,6 +13,7 @@ const AdminBroSequelize = require('@admin-bro/sequelize');
 const passwordFeature = require('@admin-bro/passwords')
 
 const seeders = require('./seeders');
+const CrudGenerator = require('./CurdGenerator');
 
 
 //adminBro
@@ -72,21 +73,41 @@ const adminBro = new AdminBro({
 });
 const adminBroRouter = AdminBroExpress.buildAuthenticatedRouter(adminBro, {
     authenticate: async (email, password) => {
-      const user = await User.findOne({ email })
+        const user = await User.findOne({ email })
         if (user) {
-          if (await user.matchPassword(password)) {
+            if (await user.matchPassword(password)) {
             return user
-          }
+            }
         }
-      return false
+        return false
     },
     cookiePassword: 'session Key',
-  })
+})
+
+const crudGenerator = new CrudGenerator(
+    [
+        User,
+        Company,
+        ProductCategory,
+        {
+            model:DocType,
+            withPagination:false,
+        }
+    ],
+    {
+        basePath: '/api'
+    }
+);
 
 const startServer = () => {
     server.listen(port, () => {
         server.use(adminBro.options.rootPath, adminBroRouter);
-        server.use(routes);
+        server.use(crudGenerator.config.basePath, crudGenerator.router())
+        server.get("*", (_, res) => {
+            return res.send({
+                message: "Not found"
+            }).status(404);
+        });
         console.log(`Server is running at http://localhost:${port}`);
     })
 }

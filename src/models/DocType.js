@@ -1,8 +1,7 @@
 const { DataTypes } = require("sequelize");
-const sequelizePaginate = require('sequelize-paginate')
 
 module.exports = (sequelize) => {
-	const DocType = sequelize.define(
+	sequelize.define(
 		"DocType",
 		{
 			id: {
@@ -11,7 +10,7 @@ module.exports = (sequelize) => {
 				autoIncrement: true
 			},
 			name: {
-                type: DataTypes.STRING(5),
+                type: DataTypes.STRING(30),
                 allowNull: false,
                 unique:true
             }
@@ -20,6 +19,4 @@ module.exports = (sequelize) => {
 			tableName: "doctypes",
 		}
 	);
-
-	sequelizePaginate.paginate(DocType);
 };
